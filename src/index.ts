@@ -4,6 +4,12 @@ import { Duration } from './duration.js';
 import { Time } from './time.js';
 import * as u from './utils.js';
 
+const WEIGHTS: { [K in u.Order]: number } = {
+  lt: -1,
+  eq: 0,
+  gt: 1
+};
+
 type Compare = {
   <T extends Date>(a: T, b: T): u.Order;
   <T extends DateTime>(a: T, b: T): u.Order;
@@ -27,6 +33,7 @@ export const seconds = Duration.seconds.bind(Duration);
 export const milliseconds = Duration.milliseconds.bind(Duration);
 export const sort: Sort = <T extends u.Comparable<T>>(items: T[]): T[] => u.sortAll(items);
 export const compare: Compare = <T extends u.Comparable<T>>(a: T, b: T): u.Order => a.compare(b);
+export const weighted = (order: u.Order): number => WEIGHTS[order];
 
 export { Date } from './date.js';
 export { DateTime } from './date-time.js';
