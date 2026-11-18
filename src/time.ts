@@ -60,7 +60,7 @@ export class Time {
     return new Duration({ milliseconds: millisecondsOf(other) - millisecondsOf(this) });
   }
 
-  compare(other: Time): 'lt' | 'eq' | 'gt' {
+  compare(other: Time): -1 | 0 | 1 {
     return u.compareNumbers(millisecondsOf(this), millisecondsOf(other));
   }
 

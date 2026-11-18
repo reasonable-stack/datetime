@@ -93,15 +93,15 @@ describe('arithmetic', () => {
 
     expect(a.diff(b).toISOString()).toBe('PT2H');
     expect(b.diff(a).toISOString()).toBe('-PT2H');
-    expect(a.add(a.diff(b)).compare(b)).toBe('eq');
+    expect(a.add(a.diff(b)).compare(b)).toBe(0);
   });
 });
 
 describe('comparison', () => {
   it('compares instants, regardless of offset', () => {
-    expect(DateTime.parse('2024-01-01T12:00+02:00').compare(DateTime.parse('2024-01-01T10:00Z'))).toBe('eq');
-    expect(DateTime.parse('2024-01-01T12:00+02:00').compare(DateTime.parse('2024-01-01T11:00Z'))).toBe('lt');
-    expect(DateTime.parse('2024-01-01T12:00-02:00').compare(DateTime.parse('2024-01-01T13:00Z'))).toBe('gt');
+    expect(DateTime.parse('2024-01-01T12:00+02:00').compare(DateTime.parse('2024-01-01T10:00Z'))).toBe(0);
+    expect(DateTime.parse('2024-01-01T12:00+02:00').compare(DateTime.parse('2024-01-01T11:00Z'))).toBe(-1);
+    expect(DateTime.parse('2024-01-01T12:00-02:00').compare(DateTime.parse('2024-01-01T13:00Z'))).toBe(1);
   });
 
   it('sorts, min and max', () => {
@@ -158,7 +158,7 @@ describe('conversion', () => {
     expect(utc.toISOString()).toBe('2024-03-01T02:30:00.000Z');
     expect(utc.tzoffset).toBe(0);
     expect(utc.epoch).toBe(dt.epoch);
-    expect(utc.compare(dt)).toBe('eq');
+    expect(utc.compare(dt)).toBe(0);
   });
 });
 

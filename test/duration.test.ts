@@ -28,11 +28,11 @@ describe('new Duration(components)', () => {
 
 describe('static constructors', () => {
   it('builds a duration from a single unit', () => {
-    expect(Duration.days(2).compare(new Duration({ days: 2 }))).toBe('eq');
-    expect(Duration.hours(2).compare(new Duration({ hours: 2 }))).toBe('eq');
-    expect(Duration.minutes(2).compare(new Duration({ minutes: 2 }))).toBe('eq');
-    expect(Duration.seconds(2).compare(new Duration({ seconds: 2 }))).toBe('eq');
-    expect(Duration.milliseconds(2).compare(new Duration({ milliseconds: 2 }))).toBe('eq');
+    expect(Duration.days(2).compare(new Duration({ days: 2 }))).toBe(0);
+    expect(Duration.hours(2).compare(new Duration({ hours: 2 }))).toBe(0);
+    expect(Duration.minutes(2).compare(new Duration({ minutes: 2 }))).toBe(0);
+    expect(Duration.seconds(2).compare(new Duration({ seconds: 2 }))).toBe(0);
+    expect(Duration.milliseconds(2).compare(new Duration({ milliseconds: 2 }))).toBe(0);
   });
 });
 
@@ -48,15 +48,15 @@ describe('arithmetic', () => {
 
     expect(a.diff(b).toISOString()).toBe('PT2H');
     expect(b.diff(a).toISOString()).toBe('-PT2H');
-    expect(a.add(a.diff(b)).compare(b)).toBe('eq');
+    expect(a.add(a.diff(b)).compare(b)).toBe(0);
   });
 });
 
 describe('comparison', () => {
   it('compares by total length', () => {
-    expect(Duration.hours(36).compare(new Duration({ days: 1, hours: 12 }))).toBe('eq');
-    expect(Duration.hours(36).compare(Duration.days(2))).toBe('lt');
-    expect(Duration.days(2).compare(Duration.hours(36))).toBe('gt');
+    expect(Duration.hours(36).compare(new Duration({ days: 1, hours: 12 }))).toBe(0);
+    expect(Duration.hours(36).compare(Duration.days(2))).toBe(-1);
+    expect(Duration.days(2).compare(Duration.hours(36))).toBe(1);
   });
 
   it('sorts without mutating the input', () => {

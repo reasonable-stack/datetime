@@ -55,15 +55,15 @@ describe('arithmetic', () => {
 
     expect(a.diff(b).toISOString()).toBe('P29D');
     expect(b.diff(a).toISOString()).toBe('-P29D');
-    expect(a.add(a.diff(b)).compare(b)).toBe('eq');
+    expect(a.add(a.diff(b)).compare(b)).toBe(0);
   });
 });
 
 describe('comparison', () => {
   it('compares dates', () => {
-    expect(Date.parse('2024-01-01').compare(Date.parse('2024-01-02'))).toBe('lt');
-    expect(Date.parse('2024-01-01').compare(Date.parse('2024-01-01'))).toBe('eq');
-    expect(Date.parse('2024-01-02').compare(Date.parse('2024-01-01'))).toBe('gt');
+    expect(Date.parse('2024-01-01').compare(Date.parse('2024-01-02'))).toBe(-1);
+    expect(Date.parse('2024-01-01').compare(Date.parse('2024-01-01'))).toBe(0);
+    expect(Date.parse('2024-01-02').compare(Date.parse('2024-01-01'))).toBe(1);
   });
 
   it('sorts, min and max', () => {

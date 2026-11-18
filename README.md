@@ -24,7 +24,7 @@ durations.
 ## Installation
 
 ```sh
-npm install reasonable-datetime
+npm install @reasonable-stack/datetime
 ```
 
 ## Quick start
@@ -64,7 +64,8 @@ Every type follows the same rules:
 - **Serializes as ISO 8601.** `toISOString()`, `toString()` and `toJSON()`
   return the same string, so instances work in template literals and
   `JSON.stringify`.
-- **Comparison** returns `'lt'`, `'eq'` or `'gt'`.
+- **Comparison** returns `-1`, `0` or `1`, so `compare` works as an
+  `Array.prototype.sort` comparator.
 - **`diff` goes from `this` to `other`.** `a.diff(b)` is `b − a`, so
   `a.add(a.diff(b))` is always `b`.
 - **Collections.** Each type has static `sort`, `min` and `max`, and `sort` is
@@ -99,7 +100,6 @@ shorter call sites:
 | `r.milliseconds(n)` | `r.Duration.milliseconds(n)`                                                   |
 | `r.sort(items)`     | `r.Date.sort(items)`, `r.Time.sort(items)`, … for whichever type `items` holds |
 | `r.compare(a, b)`   | `a.compare(b)`                                                                 |
-| `r.weighted(order)` | `-1`, `0` or `1` for `'lt'`, `'eq'` or `'gt'` (see below)                      |
 
 ```ts
 import * as r from 'reasonable-datetime';
@@ -107,16 +107,16 @@ import * as r from 'reasonable-datetime';
 r.Date.parse('2024-02-28').add(r.days(2)).toISOString(); // => '2024-03-01'
 
 r.sort([r.hours(3), r.minutes(90)]).map(String); // => ['PT1H30M', 'PT3H']
-r.compare(r.days(2), r.hours(36));               // => 'gt'
+r.compare(r.days(2), r.hours(36));               // => 1
 ```
 
 `sort` and `compare` work with any of the four types, but in TypeScript all
 values must be of the same type — mixing, say, a `Date` and a `Time` is a
 compile-time error, since they can't be meaningfully compared.
 
-`r.weighted(order)` turns a comparison result into the `-1`, `0` or `1` that
-`Array.prototype.sort` expects, so `compare` can be used in a custom sort
-function — for example, to sort records by one of their fields:
+Since `compare` returns the `-1`, `0` or `1` that `Array.prototype.sort`
+expects, it can be used in a custom sort function — for example, to sort
+records by one of their fields:
 
 ```ts
 const events = [
@@ -124,10 +124,10 @@ const events = [
   { name: 'kickoff', at: r.Date.parse('2023-12-31') },
 ];
 
-events.toSorted((a, b) => r.weighted(a.at.compare(b.at))).map((e) => e.name);
+events.toSorted((a, b) => a.at.compare(b.at)).map((e) => e.name);
 // => ['kickoff', 'launch']
 
-events.toSorted((a, b) => r.weighted(b.at.compare(a.at))).map((e) => e.name);
+events.toSorted((a, b) => b.at.compare(a.at)).map((e) => e.name);
 // => ['launch', 'kickoff'] (descending)
 ```
 
@@ -147,15 +147,15 @@ r.todayUTC();                                  // the current date in UTC
 | `month` | `1..12`   |
 | `day`   | `1..31`   |
 
-| method                           | returns                | description                                  |
-| :------------------------------- | :--------------------- | :------------------------------------------- |
-| `add(duration)`                  | `Date`                 | moves forward by a whole number of days      |
-| `sub(duration)`                  | `Date`                 | moves backward by a whole number of days     |
-| `diff(other)`                    | `Duration`             | the number of days from this date to `other` |
-| `compare(other)`                 | `'lt' \| 'eq' \| 'gt'` | compares dates                               |
-| `beginningOf('year' \| 'month')` | `Date`                 | the first day of the year or month           |
-| `endOf('year' \| 'month')`       | `Date`                 | the last day of the year or month            |
-| `toISOString()`                  | `string`               | e.g. `'2024-02-29'`                          |
+| method                           | returns        | description                                  |
+| :------------------------------- | :------------- | :------------------------------------------- |
+| `add(duration)`                  | `Date`         | moves forward by a whole number of days      |
+| `sub(duration)`                  | `Date`         | moves backward by a whole number of days     |
+| `diff(other)`                    | `Duration`     | the number of days from this date to `other` |
+| `compare(other)`                 | `-1 \| 0 \| 1` | compares dates                               |
+| `beginningOf('year' \| 'month')` | `Date`         | the first day of the year or month           |
+| `endOf('year' \| 'month')`       | `Date`         | the last day of the year or month            |
+| `toISOString()`                  | `string`       | e.g. `'2024-02-29'`                          |
 
 Dates only move in whole days. Adding a duration with leftover hours, minutes,
 seconds or milliseconds throws a `RangeError`:
@@ -187,13 +187,13 @@ new r.Time({ hour: 13, minute: 45 }); // second and millisecond default to 0
 | `second`      | `0..59`  |
 | `millisecond` | `0..999` |
 
-| method           | returns                | description                                  |
-| :--------------- | :--------------------- | :------------------------------------------- |
-| `add(duration)`  | `Time`                 | moves forward, wrapping around midnight      |
-| `sub(duration)`  | `Time`                 | moves backward, wrapping around midnight     |
-| `diff(other)`    | `Duration`             | the time from this time to `other`           |
-| `compare(other)` | `'lt' \| 'eq' \| 'gt'` | compares times                               |
-| `toISOString()`  | `string`               | always `HH:MM:SS.sss`, e.g. `'13:45:00.000'` |
+| method           | returns        | description                                  |
+| :--------------- | :------------- | :------------------------------------------- |
+| `add(duration)`  | `Time`         | moves forward, wrapping around midnight      |
+| `sub(duration)`  | `Time`         | moves backward, wrapping around midnight     |
+| `diff(other)`    | `Duration`     | the time from this time to `other`           |
+| `compare(other)` | `-1 \| 0 \| 1` | compares times                               |
+| `toISOString()`  | `string`       | always `HH:MM:SS.sss`, e.g. `'13:45:00.000'` |
 
 Times wrap around midnight, so adding whole days leaves a time unchanged:
 
@@ -237,19 +237,19 @@ one is ambiguous, so `r.DateTime.parse('2024-02-29T13:45')` throws a
 > **Note:** `tzoffset` has the opposite sign of the native
 > `Date.prototype.getTimezoneOffset()`: here, `-03:00` is `-180`.
 
-| method                                    | returns                | description                                                       |
-| :---------------------------------------- | :--------------------- | :---------------------------------------------------------------- |
-| `add(duration)`                           | `DateTime`             | moves forward, keeping the offset                                 |
-| `sub(duration)`                           | `DateTime`             | moves backward, keeping the offset                                |
-| `diff(other)`                             | `Duration`             | the exact time from this instant to `other`                       |
-| `compare(other)`                          | `'lt' \| 'eq' \| 'gt'` | compares instants, regardless of offset                           |
-| `beginningOf('year' \| 'month' \| 'day')` | `DateTime`             | the first millisecond of the unit, at this offset                 |
-| `endOf('year' \| 'month' \| 'day')`       | `DateTime`             | the last millisecond of the unit (`23:59:59.999`), at this offset |
-| `utc()`                                   | `DateTime`             | the same instant at offset `0`, with the fields adjusted          |
-| `date()`                                  | `Date`                 | the date at this offset                                           |
-| `time()`                                  | `Time`                 | the time at this offset                                           |
-| `toNativeDate()`                          | native `Date`          | the same instant as a native `Date`                               |
-| `toISOString()`                           | `string`               | e.g. `'2024-02-29T13:45:00.000-03:00'`, or `…Z` for UTC           |
+| method                                    | returns        | description                                                       |
+| :---------------------------------------- | :------------- | :---------------------------------------------------------------- |
+| `add(duration)`                           | `DateTime`     | moves forward, keeping the offset                                 |
+| `sub(duration)`                           | `DateTime`     | moves backward, keeping the offset                                |
+| `diff(other)`                             | `Duration`     | the exact time from this instant to `other`                       |
+| `compare(other)`                          | `-1 \| 0 \| 1` | compares instants, regardless of offset                           |
+| `beginningOf('year' \| 'month' \| 'day')` | `DateTime`     | the first millisecond of the unit, at this offset                 |
+| `endOf('year' \| 'month' \| 'day')`       | `DateTime`     | the last millisecond of the unit (`23:59:59.999`), at this offset |
+| `utc()`                                   | `DateTime`     | the same instant at offset `0`, with the fields adjusted          |
+| `date()`                                  | `Date`         | the date at this offset                                           |
+| `time()`                                  | `Time`         | the time at this offset                                           |
+| `toNativeDate()`                          | native `Date`  | the same instant as a native `Date`                               |
+| `toISOString()`                           | `string`       | e.g. `'2024-02-29T13:45:00.000-03:00'`, or `…Z` for UTC           |
 
 Two date-times at the same instant are equal, whatever their offsets:
 
@@ -257,7 +257,7 @@ Two date-times at the same instant are equal, whatever their offsets:
 const a = r.DateTime.parse('2024-01-01T12:00+02:00');
 const b = r.DateTime.parse('2024-01-01T10:00Z');
 
-r.compare(a, b);         // => 'eq'
+r.compare(a, b);         // => 0
 a.diff(b).toISOString(); // => 'PT0S'
 ```
 
@@ -307,16 +307,16 @@ A negative duration has every field negative: `-36` hours is `{ days: -1,
 hours: -12 }`. The total is rounded to whole milliseconds, and non-finite
 values (`NaN`, `Infinity`) throw a `RangeError`.
 
-| method           | returns                | description                            |
-| :--------------- | :--------------------- | :------------------------------------- |
-| `add(duration)`  | `Duration`             | the sum                                |
-| `sub(duration)`  | `Duration`             | the difference, `this − duration`      |
-| `diff(other)`    | `Duration`             | the difference, `other − this`         |
-| `compare(other)` | `'lt' \| 'eq' \| 'gt'` | compares total lengths                 |
-| `toISOString()`  | `string`               | an ISO 8601 duration, e.g. `'P1DT12H'` |
+| method           | returns        | description                            |
+| :--------------- | :------------- | :------------------------------------- |
+| `add(duration)`  | `Duration`     | the sum                                |
+| `sub(duration)`  | `Duration`     | the difference, `this − duration`      |
+| `diff(other)`    | `Duration`     | the difference, `other − this`         |
+| `compare(other)` | `-1 \| 0 \| 1` | compares total lengths                 |
+| `toISOString()`  | `string`       | an ISO 8601 duration, e.g. `'P1DT12H'` |
 
 ```ts
-r.compare(r.hours(36), r.days(2)); // => 'lt'
+r.compare(r.hours(36), r.days(2)); // => -1
 
 new r.Duration({}).toISOString();    // => 'PT0S'
 r.milliseconds(-1250).toISOString(); // => '-PT1.25S'

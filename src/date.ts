@@ -61,7 +61,7 @@ export class Date {
     return new Duration({ milliseconds: epochOf(other) - epochOf(this) });
   }
 
-  compare(other: Date): 'lt' | 'eq' | 'gt' {
+  compare(other: Date): -1 | 0 | 1 {
     return u.compareNumbers(epochOf(this), epochOf(other));
   }
 

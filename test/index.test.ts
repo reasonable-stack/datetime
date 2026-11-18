@@ -3,17 +3,17 @@ import { Date, DateTime, Duration, Time, compare, sort } from '../src';
 
 describe('compare(a, b)', () => {
   it('compares each type', () => {
-    expect(compare(Date.parse('2024-01-01'), Date.parse('2024-01-02'))).toBe('lt');
-    expect(compare(Time.parse('12:00'), Time.parse('12:00:00.000'))).toBe('eq');
-    expect(compare(Duration.days(2), Duration.hours(36))).toBe('gt');
-    expect(compare(DateTime.parse('2024-01-01T12:00+02:00'), DateTime.parse('2024-01-01T10:00Z'))).toBe('eq');
+    expect(compare(Date.parse('2024-01-01'), Date.parse('2024-01-02'))).toBe(-1);
+    expect(compare(Time.parse('12:00'), Time.parse('12:00:00.000'))).toBe(0);
+    expect(compare(Duration.days(2), Duration.hours(36))).toBe(1);
+    expect(compare(DateTime.parse('2024-01-01T12:00+02:00'), DateTime.parse('2024-01-01T10:00Z'))).toBe(0);
   });
 
-  it('works as an `Array.prototype.sort` comparator source', () => {
-    const weights = { lt: -1, eq: 0, gt: 1 };
+  it('works as an `Array.prototype.sort` comparator', () => {
     const values = [Duration.hours(3), Duration.hours(1), Duration.hours(2)];
 
-    expect(values.sort((a, b) => weights[compare(a, b)]).map(String)).toEqual(['PT1H', 'PT2H', 'PT3H']);
+    expect(values.sort(compare).map(String)).toEqual(['PT1H', 'PT2H', 'PT3H']);
+    expect(values.sort((a, b) => b.compare(a)).map(String)).toEqual(['PT3H', 'PT2H', 'PT1H']);
   });
 
   it('only accepts two values of the same supported type', () => {

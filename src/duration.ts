@@ -53,7 +53,7 @@ export class Duration {
     return new Duration({ milliseconds: other['~total'] - this['~total'] });
   }
 
-  compare(other: Duration): 'lt' | 'eq' | 'gt' {
+  compare(other: Duration): -1 | 0 | 1 {
     return u.compareNumbers(this['~total'], other['~total']);
   }
 

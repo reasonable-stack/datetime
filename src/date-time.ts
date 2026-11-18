@@ -111,7 +111,7 @@ export class DateTime {
   }
 
   // compares instants, regardless of offset
-  compare(other: DateTime): 'lt' | 'eq' | 'gt' {
+  compare(other: DateTime): -1 | 0 | 1 {
     return u.compareNumbers(this.epoch, other.epoch);
   }
 

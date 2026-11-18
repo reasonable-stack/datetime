@@ -1,29 +1,27 @@
 import { NativeDate } from './native.js';
 
-export type Order = 'lt' | 'eq' | 'gt';
+export type Order = -1 | 0 | 1;
 
 export type Comparable<T> = { compare(other: T): Order };
 
 export const DAY = 86_400_000; // in milliseconds
 
-const weights = { lt: -1, eq: 0, gt: 1 } as const;
-
 export const compareNumbers = (a: number, b: number): Order =>
-  a < b ? 'lt' : a > b ? 'gt' : 'eq';
+  a < b ? -1 : a > b ? 1 : 0;
 
 export const sortAll = <T extends Comparable<T>>(values: T[]): T[] =>
-  [...values].sort((a, b) => weights[a.compare(b)]);
+  [...values].sort((a, b) => a.compare(b));
 
 export const minOf = <T extends Comparable<T>>(values: T[]): T => {
   if (values.length === 0) throw new RangeError('cannot get the min of an empty list');
 
-  return values.reduce((min, value) => value.compare(min) === 'lt' ? value : min);
+  return values.reduce((min, value) => value.compare(min) === -1 ? value : min);
 };
 
 export const maxOf = <T extends Comparable<T>>(values: T[]): T => {
   if (values.length === 0) throw new RangeError('cannot get the max of an empty list');
 
-  return values.reduce((max, value) => value.compare(max) === 'gt' ? value : max);
+  return values.reduce((max, value) => value.compare(max) === 1 ? value : max);
 };
 
 export const assertInteger = (name: string, value: number, min: number, max: number): void => {

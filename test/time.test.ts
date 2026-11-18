@@ -47,16 +47,16 @@ describe('arithmetic', () => {
 
     expect(a.diff(b).toISOString()).toBe('PT1H30M');
     expect(b.diff(a).toISOString()).toBe('-PT1H30M');
-    expect(a.add(a.diff(b)).compare(b)).toBe('eq');
-    expect(b.add(b.diff(a)).compare(a)).toBe('eq');
+    expect(a.add(a.diff(b)).compare(b)).toBe(0);
+    expect(b.add(b.diff(a)).compare(a)).toBe(0);
   });
 });
 
 describe('comparison', () => {
   it('compares times', () => {
-    expect(Time.parse('10:00').compare(Time.parse('10:00:00.001'))).toBe('lt');
-    expect(Time.parse('10:00').compare(Time.parse('10:00:00'))).toBe('eq');
-    expect(Time.parse('10:01').compare(Time.parse('10:00'))).toBe('gt');
+    expect(Time.parse('10:00').compare(Time.parse('10:00:00.001'))).toBe(-1);
+    expect(Time.parse('10:00').compare(Time.parse('10:00:00'))).toBe(0);
+    expect(Time.parse('10:01').compare(Time.parse('10:00'))).toBe(1);
   });
 
   it('sorts, min and max', () => {
