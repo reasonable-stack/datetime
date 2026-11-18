@@ -1,6 +1,6 @@
 {
   "name": "@reasonable-stack/datetime",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Some reasonably good datetime primitives for TypeScript.",
   "author": "Rafael Willians <me@rwillians.com>",
   "keywords": ["date", "time", "datetime", "temporal"],
