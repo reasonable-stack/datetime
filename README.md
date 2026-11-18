@@ -99,6 +99,7 @@ shorter call sites:
 | `r.milliseconds(n)` | `r.Duration.milliseconds(n)`                                                   |
 | `r.sort(items)`     | `r.Date.sort(items)`, `r.Time.sort(items)`, … for whichever type `items` holds |
 | `r.compare(a, b)`   | `a.compare(b)`                                                                 |
+| `r.weighted(order)` | `-1`, `0` or `1` for `'lt'`, `'eq'` or `'gt'` (see below)                      |
 
 ```ts
 import * as r from 'reasonable-datetime';
@@ -112,6 +113,23 @@ r.compare(r.days(2), r.hours(36));               // => 'gt'
 `sort` and `compare` work with any of the four types, but in TypeScript all
 values must be of the same type — mixing, say, a `Date` and a `Time` is a
 compile-time error, since they can't be meaningfully compared.
+
+`r.weighted(order)` turns a comparison result into the `-1`, `0` or `1` that
+`Array.prototype.sort` expects, so `compare` can be used in a custom sort
+function — for example, to sort records by one of their fields:
+
+```ts
+const events = [
+  { name: 'launch', at: r.Date.parse('2024-03-01') },
+  { name: 'kickoff', at: r.Date.parse('2023-12-31') },
+];
+
+events.toSorted((a, b) => r.weighted(a.at.compare(b.at))).map((e) => e.name);
+// => ['kickoff', 'launch']
+
+events.toSorted((a, b) => r.weighted(b.at.compare(a.at))).map((e) => e.name);
+// => ['launch', 'kickoff'] (descending)
+```
 
 ## `Date`
 
