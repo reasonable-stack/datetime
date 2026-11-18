@@ -2,9 +2,18 @@ import { Date } from './date.js';
 import { Duration } from './duration.js';
 import { NativeDate } from './native.js';
 import { Time } from './time.js';
-import { assertInteger, compareNumbers, daysInMonth, fromEpoch, maxOf, minOf, pad, sortAll, toEpoch } from './utils.js';
+import * as u from './utils.js';
 
-type Components = { year: number; month: number, day: number, hour?: number, minute?: number, second?: number, millisecond?: number, tzoffset?: number };
+type Components = {
+  year: number;
+  month: number;
+  day: number;
+  hour?: number;
+  minute?: number;
+  second?: number;
+  millisecond?: number;
+  tzoffset?: number;
+};
 
 // the offset is required, a date-time without one is ambiguous
 const ISO_DATE_TIME = /^([^T]{1,})T([\d:.]{1,})(Z|[+-]\d{2}:\d{2})$/;
@@ -16,7 +25,7 @@ const parseOffset = (offset: string): number => {
   const hours = Number(offset.slice(1, 3));
   const minutes = Number(offset.slice(4, 6));
 
-  assertInteger('offset minutes', minutes, 0, 59);
+  u.assertInteger('offset minutes', minutes, 0, 59);
 
   return sign * (hours * 60 + minutes) + 0;
 };
@@ -26,7 +35,7 @@ const formatOffset = (tzoffset: number): string => {
 
   const minutes = Math.abs(tzoffset);
 
-  return `${tzoffset < 0 ? '-' : '+'}${pad(Math.trunc(minutes / 60))}:${pad(minutes % 60)}`;
+  return `${tzoffset < 0 ? '-' : '+'}${u.pad(Math.trunc(minutes / 60))}:${u.pad(minutes % 60)}`;
 };
 
 // the date and time parts are validated by `Date` and `Time`
@@ -41,7 +50,7 @@ const parseISO = (iso: string): Components => {
 };
 
 const at = (epoch: number, tzoffset: number): DateTime =>
-  new DateTime({ ...fromEpoch(epoch + tzoffset * 60_000), tzoffset });
+  new DateTime({ ...u.fromEpoch(epoch + tzoffset * 60_000), tzoffset });
 
 export class DateTime {
   public readonly year: number;
@@ -64,7 +73,7 @@ export class DateTime {
     });
     const tzoffset = components.tzoffset ?? 0;
 
-    assertInteger('tzoffset', tzoffset, -1439, 1439);
+    u.assertInteger('tzoffset', tzoffset, -1439, 1439);
 
     this.year = year;
     this.month = month;
@@ -74,7 +83,7 @@ export class DateTime {
     this.second = second;
     this.millisecond = millisecond;
     this.tzoffset = tzoffset;
-    this.epoch = toEpoch(year, month, day, hour, minute, second, millisecond) - tzoffset * 60_000;
+    this.epoch = u.toEpoch(year, month, day, hour, minute, second, millisecond) - tzoffset * 60_000;
   }
 
   static is(value: unknown): value is DateTime { return value instanceof DateTime }
@@ -84,15 +93,15 @@ export class DateTime {
     if (typeof value === 'string') return new DateTime(parseISO(value));
 
     // the range supported by the native `Date`
-    assertInteger('epoch', value, -8.64e15, 8.64e15);
+    u.assertInteger('epoch', value, -8.64e15, 8.64e15);
 
     return at(value, 0);
   }
 
   static nowUTC(): DateTime { return at(NativeDate.now(), 0) }
-  static sort(values: DateTime[]): DateTime[] { return sortAll(values) }
-  static min(values: DateTime[]): DateTime { return minOf(values) }
-  static max(values: DateTime[]): DateTime { return maxOf(values) }
+  static sort(values: DateTime[]): DateTime[] { return u.sortAll(values) }
+  static min(values: DateTime[]): DateTime { return u.minOf(values) }
+  static max(values: DateTime[]): DateTime { return u.maxOf(values) }
 
   add(duration: Duration): DateTime { return at(this.epoch + duration['~total'], this.tzoffset) }
   sub(duration: Duration): DateTime { return at(this.epoch - duration['~total'], this.tzoffset) }
@@ -103,7 +112,7 @@ export class DateTime {
 
   // compares instants, regardless of offset
   compare(other: DateTime): 'lt' | 'eq' | 'gt' {
-    return compareNumbers(this.epoch, other.epoch);
+    return u.compareNumbers(this.epoch, other.epoch);
   }
 
   // in the date-time's own offset
@@ -119,7 +128,7 @@ export class DateTime {
   // in the date-time's own offset
   endOf(unit: 'year' | 'month' | 'day'): DateTime {
     const month = unit === 'year' ? 12 : this.month;
-    const day = unit === 'day' ? this.day : daysInMonth(this.year, month);
+    const day = unit === 'day' ? this.day : u.daysInMonth(this.year, month);
 
     return new DateTime({
       year: this.year,

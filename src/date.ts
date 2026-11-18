@@ -1,6 +1,6 @@
 import { Duration } from './duration.js';
 import { NativeDate } from './native.js';
-import { assertInteger, DAY, compareNumbers, daysInMonth, fromEpoch, maxOf, minOf, pad, sortAll, toEpoch } from './utils.js';
+import * as u from './utils.js';
 
 const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 
@@ -14,14 +14,14 @@ const parseISO = (iso: string) => {
   return { year: Number(year), month: Number(month), day: Number(day) };
 };
 
-const epochOf = (date: Date): number => toEpoch(date.year, date.month, date.day);
+const epochOf = (date: Date): number => u.toEpoch(date.year, date.month, date.day);
 
 const shift = (date: Date, milliseconds: number): Date => {
-  if (milliseconds % DAY !== 0) {
+  if (milliseconds % u.DAY !== 0) {
     throw new RangeError('a date can only be shifted by whole days');
   }
 
-  const { year, month, day } = fromEpoch(epochOf(date) + milliseconds);
+  const { year, month, day } = u.fromEpoch(epochOf(date) + milliseconds);
 
   return new Date({ year, month, day });
 };
@@ -32,9 +32,9 @@ export class Date {
   public readonly day: number; // 1..31
 
   constructor({ year, month, day }: { year: number, month: number, day: number }) {
-    assertInteger('year', year, 0, 9999);
-    assertInteger('month', month, 1, 12);
-    assertInteger('day', day, 1, daysInMonth(year, month));
+    u.assertInteger('year', year, 0, 9999);
+    u.assertInteger('month', month, 1, 12);
+    u.assertInteger('day', day, 1, u.daysInMonth(year, month));
 
     this.year = year;
     this.month = month;
@@ -45,14 +45,14 @@ export class Date {
   static parse(iso: string): Date { return new Date(parseISO(iso)) }
 
   static todayUTC(): Date {
-    const { year, month, day } = fromEpoch(NativeDate.now());
+    const { year, month, day } = u.fromEpoch(NativeDate.now());
 
     return new Date({ year, month, day });
   }
 
-  static sort(values: Date[]): Date[] { return sortAll(values) }
-  static min(values: Date[]): Date { return minOf(values) }
-  static max(values: Date[]): Date { return maxOf(values) }
+  static sort(values: Date[]): Date[] { return u.sortAll(values) }
+  static min(values: Date[]): Date { return u.minOf(values) }
+  static max(values: Date[]): Date { return u.maxOf(values) }
 
   add(duration: Duration): Date { return shift(this, duration['~total']) }
   sub(duration: Duration): Date { return shift(this, -duration['~total']) }
@@ -62,7 +62,7 @@ export class Date {
   }
 
   compare(other: Date): 'lt' | 'eq' | 'gt' {
-    return compareNumbers(epochOf(this), epochOf(other));
+    return u.compareNumbers(epochOf(this), epochOf(other));
   }
 
   beginningOf(unit: 'year' | 'month'): Date {
@@ -72,11 +72,11 @@ export class Date {
   endOf(unit: 'year' | 'month'): Date {
     const month = unit === 'year' ? 12 : this.month;
 
-    return new Date({ year: this.year, month, day: daysInMonth(this.year, month) });
+    return new Date({ year: this.year, month, day: u.daysInMonth(this.year, month) });
   }
 
   toISOString(): string {
-    return `${pad(this.year, 4)}-${pad(this.month)}-${pad(this.day)}`;
+    return `${u.pad(this.year, 4)}-${u.pad(this.month)}-${u.pad(this.day)}`;
   }
 
   toJSON(): string { return this.toISOString() }

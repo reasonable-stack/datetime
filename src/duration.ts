@@ -1,4 +1,4 @@
-import { compareNumbers, maxOf, minOf, pad, sortAll } from './utils.js';
+import * as u from './utils.js';
 
 export class Duration {
   public readonly days: number;
@@ -37,9 +37,9 @@ export class Duration {
   static seconds(n: number): Duration { return new Duration({ seconds: n }) }
   static milliseconds(n: number): Duration { return new Duration({ milliseconds: n }) }
 
-  static sort(values: Duration[]): Duration[] { return sortAll(values) }
-  static min(values: Duration[]): Duration { return minOf(values) }
-  static max(values: Duration[]): Duration { return maxOf(values) }
+  static sort(values: Duration[]): Duration[] { return u.sortAll(values) }
+  static min(values: Duration[]): Duration { return u.minOf(values) }
+  static max(values: Duration[]): Duration { return u.maxOf(values) }
 
   add(duration: Duration): Duration {
     return new Duration({ milliseconds: this['~total'] + duration['~total'] });
@@ -54,7 +54,7 @@ export class Duration {
   }
 
   compare(other: Duration): 'lt' | 'eq' | 'gt' {
-    return compareNumbers(this['~total'], other['~total']);
+    return u.compareNumbers(this['~total'], other['~total']);
   }
 
   toISOString(): string {
@@ -66,7 +66,7 @@ export class Duration {
     const seconds = Math.abs(this.seconds);
     const milliseconds = Math.abs(this.milliseconds);
 
-    const fraction = milliseconds ? `.${pad(milliseconds, 3).replace(/0{1,}$/, '')}` : '';
+    const fraction = milliseconds ? `.${u.pad(milliseconds, 3).replace(/0{1,}$/, '')}` : '';
     const time = (hours ? `${hours}H` : '')
       + (minutes ? `${minutes}M` : '')
       + (seconds || milliseconds ? `${seconds}${fraction}S` : '');

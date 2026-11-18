@@ -2,13 +2,13 @@ import { Date } from './date.js';
 import { DateTime } from './date-time.js';
 import { Duration } from './duration.js';
 import { Time } from './time.js';
-import { type Comparable, type Order, sortAll } from './utils.js';
+import * as u from './utils.js';
 
 type Compare = {
-  <T extends Date>(a: T, b: T): Order;
-  <T extends DateTime>(a: T, b: T): Order;
-  <T extends Duration>(a: T, b: T): Order;
-  <T extends Time>(a: T, b: T): Order;
+  <T extends Date>(a: T, b: T): u.Order;
+  <T extends DateTime>(a: T, b: T): u.Order;
+  <T extends Duration>(a: T, b: T): u.Order;
+  <T extends Time>(a: T, b: T): u.Order;
 };
 
 type Sort = {
@@ -25,8 +25,8 @@ export const hours = Duration.hours.bind(Duration);
 export const minutes = Duration.minutes.bind(Duration);
 export const seconds = Duration.seconds.bind(Duration);
 export const milliseconds = Duration.milliseconds.bind(Duration);
-export const sort: Sort = <T extends Comparable<T>>(items: T[]): T[] => sortAll(items);
-export const compare: Compare = <T extends Comparable<T>>(a: T, b: T): Order => a.compare(b);
+export const sort: Sort = <T extends u.Comparable<T>>(items: T[]): T[] => u.sortAll(items);
+export const compare: Compare = <T extends u.Comparable<T>>(a: T, b: T): u.Order => a.compare(b);
 
 export { Date } from './date.js';
 export { DateTime } from './date-time.js';
