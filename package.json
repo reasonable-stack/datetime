@@ -3,6 +3,7 @@
   "version": "0.2.0",
   "description": "Some reasonably good datetime primitives.",
   "author": "Rafael Willians <me@rwillians.com>",
+  "license": "MIT",
   "keywords": ["date", "time", "datetime", "temporal"],
   "publishConfig": { "access": "public" },
   "files": ["LICENSE", "dist/*"],
